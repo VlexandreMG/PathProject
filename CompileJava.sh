@@ -3,6 +3,7 @@
 # Définition ana variable
 DIRECTORY="src"
 CLASSDIR="out"
+LIBRARY="lib"
 
 # Fafana le out de manao vaovao
 rm -rf $CLASSDIR
@@ -10,7 +11,7 @@ mkdir -p $CLASSDIR/$DIRECTORY
 
 # Compilation des fichiers
 find $DIRECTORY -name *.java > source.txt
-javac -d $CLASSDIR/$DIRECTORY @source.txt
+javac --module-path "$LIBRARY" --add-modules javafx.controls  -d $CLASSDIR/$DIRECTORY @source.txt
 
 # Mandefa anle izy 
 cd $CLASSDIR/$DIRECTORY 
@@ -51,5 +52,5 @@ function edit_valiny() {
     cat "$input_file"
 }
 
-java "$(edit_valiny)"
+java --module-path "../../$LIBRARY" --add-modules javafx.controls "$(edit_valiny)"
 
