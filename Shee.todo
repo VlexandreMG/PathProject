@@ -1,0 +1,59 @@
+☐ Class 
+    ☐ Path 
+        ☐ Nom 
+        ☐ km 
+        ☐ largeur
+    ☐ Car 
+        ☐ VitesseMax
+        ☐ Type (id)
+        ☐ longueur 
+        ☐ largeur
+    ☐ Type 
+        ☐ id
+        ☐ Nom 
+    ☐ Hole 
+        ☐ Path (id)
+        ☐ Pourcentage 
+        ☐ kmAge
+    ☐ Point
+        ☐ x
+        ☐ y
+        ☐ nom
+    ☐ Route
+        ☐ dep 
+        ☐ arriv
+        ☐ List path
+        ☐ distance
+☐ Create Read (CRUD) 
+    ☐ Creative
+        ☐ Famakafakana 
+            ☐ Lalana ray misy point A makany @ point B 
+            ☐ D mila reny lony no apetraka 
+            ☐ D petahan maina b le distance 
+        ☐ Animation 
+            ☐ On verra 
+    ☐ Read 
+        ☐ Famakafakana
+            ☐ Liste tsotra
+        ☐ Animation 
+☐ Bases 
+    ☐ Postgre (Car) / Oracle (Path)
+        ☐ Connexion 
+        ☐ Creation tables 
+        ☐ Insertion données
+        ☐ Requete pour mvc 
+            ☐ Insert 
+            ☐ Select 
+☐ Interfaces 
+    ☐ CRUD 
+        ☐ Car 
+        ☐ Path 
+            ☐ Hole 
+        ☐ Type  
+    ☐ Ecran fandehanle izy 
+        ☐ Eny @ sisiny
+            ☐ Vitesse 
+            ☐ Temps 
+            ☐ Distance
+☐ Animations 
+    ☐ On verra fa mbola tsisy hevitra 
