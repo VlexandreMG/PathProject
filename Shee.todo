@@ -1,29 +1,30 @@
-☐ Class 
-    ☐ Path 
-        ☐ Nom 
-        ☐ km 
-        ☐ largeur
-    ☐ Car 
-        ☐ VitesseMax
-        ☐ Type (id)
-        ☐ longueur 
-        ☐ largeur
-    ☐ Type 
-        ☐ id
-        ☐ Nom 
-    ☐ Hole 
-        ☐ Path (id)
-        ☐ Pourcentage 
-        ☐ kmAge
-    ☐ Point
-        ☐ x
-        ☐ y
-        ☐ nom
-    ☐ Route
-        ☐ dep 
-        ☐ arriv
-        ☐ List path
-        ☐ distance
+✔ Class @done(26-01-08 22:22)
+    ✔ Path @done(26-01-08 20:40)
+        ✔ Nom @done(26-01-08 20:40)
+        ✔ distance @done(26-01-08 20:40)
+        ✔ largeur @done(26-01-08 20:40)
+    ✔ Car @done(26-01-08 20:44)
+        ✔ VitesseMax @done(26-01-08 20:44)
+        ✔ Type (id) @done(26-01-08 20:44)
+        ✔ longueur @done(26-01-08 20:44)
+        ✔ largeur @done(26-01-08 20:44)
+    ✔ Type @done(26-01-08 22:14)
+        ✔ id @done(26-01-08 22:14)
+        ✔ Nom @done(26-01-08 22:14)
+    ✔ Hole @done(26-01-08 22:16)
+        ✔ Path (id) @done(26-01-08 22:16)
+        ✔ Pourcentage @done(26-01-08 22:16)
+        ✔ kmAge @done(26-01-08 22:16)
+    ✔ Point @done(26-01-08 22:17)
+        ✔ x @done(26-01-08 22:17)
+        ✔ nom @done(26-01-08 22:17)
+        ✔ y @done(26-01-08 22:17)
+    ✔ Route @done(26-01-08 22:22)
+        ✔ dep @done(26-01-08 22:22)
+        ✔ arriv @done(26-01-08 22:22)
+        ✔ List path @done(26-01-08 22:22)
+        ✔ distance @done(26-01-08 22:22)
+        ✔ duration @done(26-01-08 22:22)
 ☐ Create Read (CRUD) 
     ☐ Creative
         ☐ Famakafakana 
