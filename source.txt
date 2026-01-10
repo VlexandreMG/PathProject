@@ -2,6 +2,7 @@ src/main/Main.java
 src/ui/scene/Scene.java
 src/ui/layout/RootLayout.java
 src/ui/node/ListView.java
+src/ui/node/Dashboard.java
 src/mvc/model/Path.java
 src/mvc/model/Car.java
 src/mvc/model/Type.java

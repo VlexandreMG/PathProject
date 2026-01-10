@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import ui.layout.RootLayout;
 import ui.node.ListView;
+import ui.node.Dashboard;
 import java.util.*;
 
 public class Main extends Application {
@@ -27,7 +28,9 @@ public class Main extends Application {
         cars.add(car3.getNom());
 
         ListView listView = new ListView(cars);
+        Dashboard dashboard = new Dashboard();
         rootLayout.getBorderPane().setCenter(listView);
+        rootLayout.getBorderPane().setLeft(dashboard);
 
         //Creation de la scene
         Scene scene = new Scene(rootLayout.getBorderPane(), 800, 600);
