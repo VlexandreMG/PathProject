@@ -29,15 +29,13 @@
     ☐ Creative
         ☐ Famakafakana 
             ✔ Bouton ajouter @done(26-01-09 22:20)
-            ☐ Popup formulaire
-                ☐ attribut anle classe
-        ☐ Animation 
-            ☐ On verra 
+            ✔ Popup formulaire @done(26-01-10 23:20)
+                ✔ attribut anle classe @done(26-01-10 23:20)
+            ☐ Ajoutena ao anaty le tableau 
     ☐ Read 
         ☐ Famakafakana
             ☐ Liste tsotra 
-                ✔ Car @done(26-01-09 01:32)
-        ☐ Animation 
+                ✔ Car @done(26-01-09 01:32) 
 ☐ Bases 
     ☐ Postgre (Car) / Oracle (Path)
         ☐ Connexion 
