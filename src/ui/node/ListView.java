@@ -109,7 +109,19 @@ public class ListView extends VBox {
 
         Button ok = new Button("OK");
         ok.setDefaultButton(true);
-        ok.setOnAction(e -> dialog.close());
+        // Quand on clique sur OK, récupérer le texte et l'ajouter à la liste
+        ok.setOnAction(e -> {
+            String nomText = nom.getText() == null ? "" : nom.getText().trim();
+            String vitesseMaxText = vitesseMax.getText();
+            String typeText = type.getText();
+            String longueurText = longueur.getText();
+            String largeurText = largeur.getText();
+            //Mbola ho alefa any anaty base 
+            if (!nomText.isEmpty()) {
+                fxList.getItems().add(nomText);
+            }
+            dialog.close();
+        });
 
         VBox box = new VBox(8, rowNom, rowVitesse, rowType, rowLong, rowLarge, ok);
         box.setPadding(new Insets(10));

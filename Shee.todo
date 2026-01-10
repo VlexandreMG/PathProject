@@ -27,11 +27,12 @@
         ✔ duration @done(26-01-08 22:22)
 ☐ Create Read (CRUD) 
     ☐ Creative
-        ☐ Famakafakana 
+        ☐ Famakafakana
             ✔ Bouton ajouter @done(26-01-09 22:20)
             ✔ Popup formulaire @done(26-01-10 23:20)
                 ✔ attribut anle classe @done(26-01-10 23:20)
-            ☐ Ajoutena ao anaty le tableau 
+            ✔ Ajoutena ao anaty le tableau @done(26-01-10 23:35)
+            ☐ Generalisena (optionnel)
     ☐ Read 
         ☐ Famakafakana
             ☐ Liste tsotra 
