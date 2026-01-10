@@ -23,7 +23,7 @@ public class ListView extends VBox {
 
     private final javafx.scene.control.ListView<String> fxList;
     private Button addButton;
-
+    private Label titleLabel;
     /**
      * Crée une ListView vide.
      */
@@ -54,12 +54,12 @@ public class ListView extends VBox {
         fxList.setPrefHeight(120);
 
         // Petit titre au-dessus de la liste (optionnel)
-        Label title = new Label("Liste voitures :");
+        titleLabel = new Label("Liste voitures :");
 
         // Bouton simple en bas (sans fonctionnalité)
         addButton = new Button("Ajouter");
 
-        getChildren().addAll(title, fxList, addButton);
+        getChildren().addAll(titleLabel, fxList, addButton);
     }
 
     /**
