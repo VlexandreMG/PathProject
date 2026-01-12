@@ -28,6 +28,10 @@ public class ListView extends VBox {
 
     private final javafx.scene.control.ListView<String> fxList;
     private Button addButton;
+    // stockage simple et global d'une sélection (chaîne) utilisable partout
+    private static String savedItem = null;
+    private Button saveButton;
+    private Label savedStatus;
 
     /**
      * Crée une ListView vide.
@@ -61,11 +65,35 @@ public class ListView extends VBox {
         // Petit titre au-dessus de la liste (optionnel)
         Label title = new Label("Liste voitures :");
 
-        // Bouton simple en bas (ouvre un popup vide via opendialog)
+        // Bouton simple en bas (ouvre un popup) + bouton Save pour sauvegarder la sélection
         addButton = new Button("Ajouter");
         addButton.setOnAction(evt -> opendialog());
 
-        getChildren().addAll(title, fxList, addButton);
+        saveButton = new Button("Save");
+        saveButton.setDisable(true);
+
+        savedStatus = new Label("");
+        if (savedItem != null) {
+            savedStatus.setText("Saved: " + savedItem);
+        }
+
+        saveButton.setOnAction(evt -> {
+            String sel = fxList.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                savedItem = sel;
+                savedStatus.setText("Saved: " + sel);
+            }
+        });
+
+        // activer/désactiver le bouton Save selon la sélection
+        fxList.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            saveButton.setDisable(newV == null);
+        });
+
+        HBox controls = new HBox(8, addButton, saveButton, savedStatus);
+        HBox.setHgrow(savedStatus, Priority.ALWAYS);
+
+        getChildren().addAll(title, fxList, controls);
     }
 
     /**
@@ -154,6 +182,16 @@ public class ListView extends VBox {
      */
     public javafx.scene.control.ListView<String> getControl() {
         return fxList;
+    }
+
+    /** Récupère la dernière valeur sauvegardée (ou null). */
+    public static String getSavedItem() {
+        return savedItem;
+    }
+
+    /** Efface la valeur sauvegardée. */
+    public static void clearSavedItem() {
+        savedItem = null;
     }
 
 }
