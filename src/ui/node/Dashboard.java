@@ -8,23 +8,28 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import mvc.model.*;
+
 /**
  * Dashboard simple : liste de noms à gauche, aperçu du composant correspondant à droite.
- * Si l'utilisateur clique sur "Car" on affiche `ui.node.ListView` ;
- * si clique sur "Path" on affiche `ui.node.ListView2`.
+ * Affiche un ListView pour chaque type de modèle.
  */
 public class Dashboard extends VBox {
 
-    private final List<String> cars;
-    private final List<String> paths;
+    private final List<?> cars;
+    private final List<?> paths;
+    private final List<?> holes;
+    private final List<?> points;
+    private final List<?> routes;
+    private final List<?> types;
 
-    /**
-     * Dashboard qui reçoit les listes de noms et affiche le composant correspondant
-     * dans la zone d'aperçu lorsqu'on sélectionne un nom.
-     */
-    public Dashboard(List<String> cars, List<String> paths) {
+    public Dashboard(List<?> cars, List<?> paths, List<?> holes, List<?> points, List<?> routes, List<?> types) {
         this.cars = cars;
         this.paths = paths;
+        this.holes = holes;
+        this.points = points;
+        this.routes = routes;
+        this.types = types;
 
         setSpacing(6);
         setPadding(new Insets(8));
@@ -50,12 +55,22 @@ public class Dashboard extends VBox {
             if (newV == null) return;
             switch (newV) {
                 case "Car":
-                    // notre composant personnalisé ui.node.ListView initialisé avec les cars
-                    previewArea.getChildren().add(new ui.node.ListView(this.cars));
+                    previewArea.getChildren().add(new ui.node.ListView(this.cars, o -> ((Car)o).getNom()));
                     break;
                 case "Path":
-                    // Afficher ListView2 initialisé avec les paths
-                    previewArea.getChildren().add(new ui.node.ListView2(this.paths));
+                    previewArea.getChildren().add(new ui.node.ListView(this.paths, o -> ((Path)o).getNom()));
+                    break;
+                case "Hole":
+                    previewArea.getChildren().add(new ui.node.ListView(this.holes, o -> "Hole id:" + ((Hole)o).getIdPath()));
+                    break;
+                case "Point":
+                    previewArea.getChildren().add(new ui.node.ListView(this.points, o -> ((Point)o).getNom()));
+                    break;
+                case "Route":
+                    previewArea.getChildren().add(new ui.node.ListView(this.routes, o -> "Route " + ((Route)o).getDistance() + "km"));
+                    break;
+                case "Type":
+                    previewArea.getChildren().add(new ui.node.ListView(this.types, o -> ((Type)o).getNom()));
                     break;
                 default:
                     previewArea.getChildren().add(new Label("Pas d'aperçu pour: " + newV));
