@@ -26,8 +26,12 @@ import javafx.stage.Stage;
  */
 public class ListView extends VBox {
 
-    private final javafx.scene.control.ListView<String> fxList;
+    private javafx.scene.control.ListView<String> fxList;
     private Button addButton;
+    // valeur sauvegardée globalement (chaîne) — accessible depuis tout le programme via getSavedItem()
+    private static String savedItem = null;
+    private Button saveButton;
+    private Label statusLabel;
 
     /**
      * Crée une ListView vide.
@@ -61,11 +65,33 @@ public class ListView extends VBox {
         // Petit titre au-dessus de la liste (optionnel)
         Label title = new Label("Liste voitures :");
 
-        // Bouton simple en bas (ouvre un popup vide via opendialog)
+        // Bouton simple en bas (ouvre un popup) et bouton Save pour sauvegarder la sélection
         addButton = new Button("Ajouter");
         addButton.setOnAction(evt -> opendialog());
 
-        getChildren().addAll(title, fxList, addButton);
+        saveButton = new Button("Save");
+        saveButton.setDisable(true);
+        statusLabel = new Label("");
+
+        // Sauvegarder l'élément sélectionné (string)
+        saveButton.setOnAction(evt -> {
+            String sel = fxList.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                savedItem = sel;
+                statusLabel.setText("Saved: " + sel);
+            }
+        });
+
+        // Activer le bouton Save seulement quand un élément est sélectionné
+        fxList.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            saveButton.setDisable(newV == null);
+            if (newV == null) statusLabel.setText("");
+        });
+
+        HBox controls = new HBox(8, addButton, saveButton, statusLabel);
+        HBox.setHgrow(statusLabel, Priority.ALWAYS);
+
+        getChildren().addAll(title, fxList, controls);
     }
 
     /**
@@ -154,6 +180,20 @@ public class ListView extends VBox {
      */
     public javafx.scene.control.ListView<String> getControl() {
         return fxList;
+    }
+
+    /**
+     * Récupère la valeur sauvegardée (peut être null si rien de sauvegardé).
+     */
+    public static String getSavedItem() {
+        return savedItem;
+    }
+
+    /**
+     * Efface la valeur sauvegardée.
+     */
+    public static void clearSavedItem() {
+        savedItem = null;
     }
 
 }

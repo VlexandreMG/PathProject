@@ -8,6 +8,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import mvc.model.Car;
+import mvc.model.Path;
+
 /**
  * Dashboard simple : liste de noms à gauche, aperçu du composant correspondant à droite.
  * Si l'utilisateur clique sur "Car" on affiche `ui.node.ListView` ;
@@ -15,14 +18,14 @@ import javafx.scene.layout.VBox;
  */
 public class Dashboard extends VBox {
 
-    private final List<String> cars;
-    private final List<String> paths;
+    private final List<Car> cars;
+    private final List<Path> paths;
 
     /**
-     * Dashboard qui reçoit les listes de noms et affiche le composant correspondant
+     * Dashboard qui reçoit les listes d'objets et affiche le composant correspondant
      * dans la zone d'aperçu lorsqu'on sélectionne un nom.
      */
-    public Dashboard(List<String> cars, List<String> paths) {
+    public Dashboard(List<Car> cars, List<Path> paths) {
         this.cars = cars;
         this.paths = paths;
 
@@ -50,11 +53,10 @@ public class Dashboard extends VBox {
             if (newV == null) return;
             switch (newV) {
                 case "Car":
-                    // notre composant personnalisé ui.node.ListView initialisé avec les cars
+                    // afficher une vue d'objets qui permet de sauvegarder l'objet sélectionné
                     previewArea.getChildren().add(new ui.node.ListView(this.cars));
                     break;
                 case "Path":
-                    // Afficher ListView2 initialisé avec les paths
                     previewArea.getChildren().add(new ui.node.ListView2(this.paths));
                     break;
                 default:

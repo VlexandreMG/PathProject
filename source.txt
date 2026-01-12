@@ -4,9 +4,11 @@ src/ui/layout/RootLayout.java
 src/ui/node/ListView.java
 src/ui/node/Dashboard.java
 src/ui/node/ListView2.java
+src/ui/node/ObjectListView.java
 src/mvc/model/Path.java
 src/mvc/model/Car.java
 src/mvc/model/Type.java
 src/mvc/model/Hole.java
 src/mvc/model/Point.java
 src/mvc/model/Route.java
+src/mvc/model/SelectedStore.java
