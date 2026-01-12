@@ -2,6 +2,8 @@ package ui.node;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.function.Function;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -28,8 +30,13 @@ public class ListView extends VBox {
 
     private final javafx.scene.control.ListView<String> fxList;
     private Button addButton;
-    // stockage simple et global d'une sélection (chaîne) utilisable partout
-    private static String savedItem = null;
+    // support minimal pour traiter des objets : si objectItems != null alors la liste
+    // d'affichage est construite depuis objectItems via labeler
+    private List<?> objectItems = null;
+    private Function<Object, String> labeler = null;
+
+    // stockage simple et global d'une ou plusieurs sélections (objets) utilisable partout
+    private static List<Object> savedObjects = new ArrayList<>();
     private Button saveButton;
     private Label savedStatus;
 
@@ -56,10 +63,27 @@ public class ListView extends VBox {
         initialize();
     }
 
+    /**
+     * Constructeur minimaliste pour afficher des objets.
+     * - items : liste d'objets à afficher
+     * - labeler : fonction qui retourne la chaîne affichée pour chaque objet
+     */
+    public ListView(List<?> items, Function<Object, String> labeler) {
+        // construire la liste des labels sans utiliser de streams (simple boucle)
+        java.util.List<String> labels = new java.util.ArrayList<>();
+        for (Object o : items) {
+            labels.add(labeler.apply(o));
+        }
+        this.fxList = new javafx.scene.control.ListView<>(FXCollections.observableArrayList(labels));
+        this.objectItems = items;
+        this.labeler = (Function<Object, String>) labeler;
+        initialize();
+    }
+
     private void initialize() {
         setSpacing(4);
         setPadding(new Insets(6));
-        fxList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        fxList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         fxList.setPrefHeight(120);
 
         // Petit titre au-dessus de la liste (optionnel)
@@ -73,21 +97,32 @@ public class ListView extends VBox {
         saveButton.setDisable(true);
 
         savedStatus = new Label("");
-        if (savedItem != null) {
-            savedStatus.setText("Saved: " + savedItem);
+        if (!savedObjects.isEmpty()) {
+            savedStatus.setText("Saved: " + savedObjects.size() + " item(s)");
         }
 
         saveButton.setOnAction(evt -> {
-            String sel = fxList.getSelectionModel().getSelectedItem();
-            if (sel != null) {
-                savedItem = sel;
-                savedStatus.setText("Saved: " + sel);
+            List<Integer> indices = fxList.getSelectionModel().getSelectedIndices();
+            savedObjects.clear();
+            if (!indices.isEmpty()) {
+                for (int idx : indices) {
+                    if (objectItems != null && idx < objectItems.size()) {
+                        savedObjects.add(objectItems.get(idx));
+                    } else {
+                        // cas simple : on a juste des strings affichées
+                        String sel = fxList.getItems().get(idx);
+                        if (sel != null) {
+                            savedObjects.add(sel);
+                        }
+                    }
+                }
+                savedStatus.setText("Saved: " + savedObjects.size() + " item(s)");
             }
         });
 
         // activer/désactiver le bouton Save selon la sélection
-        fxList.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
-            saveButton.setDisable(newV == null);
+        fxList.getSelectionModel().getSelectedIndices().addListener((javafx.collections.ListChangeListener.Change<? extends Integer> c) -> {
+            saveButton.setDisable(fxList.getSelectionModel().getSelectedIndices().isEmpty());
         });
 
         HBox controls = new HBox(8, addButton, saveButton, savedStatus);
@@ -184,14 +219,14 @@ public class ListView extends VBox {
         return fxList;
     }
 
-    /** Récupère la dernière valeur sauvegardée (ou null). */
-    public static String getSavedItem() {
-        return savedItem;
+    /** Récupère la liste des valeurs sauvegardées. */
+    public static List<Object> getSavedItems() {
+        return new ArrayList<>(savedObjects);
     }
 
     /** Efface la valeur sauvegardée. */
-    public static void clearSavedItem() {
-        savedItem = null;
+    public static void clearSavedItems() {
+        savedObjects.clear();
     }
 
 }
