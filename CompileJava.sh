@@ -1,19 +1,32 @@
 #!/bin/bash 
 
-# Définition ana variable
+# Définition des variables
 DIRECTORY="src"
 CLASSDIR="out"
 LIBRARY="lib"
+DRIVERDIR="driver"  # Ajout du dossier driver
 
-# Fafana le out de manao vaovao
+# Nettoyer et recréer le répertoire de sortie
 rm -rf $CLASSDIR
 mkdir -p $CLASSDIR/$DIRECTORY
 
-# Compilation des fichiers
-find $DIRECTORY -name *.java > source.txt
-javac --module-path "$LIBRARY" --add-modules javafx.controls  -d $CLASSDIR/$DIRECTORY @source.txt
+# Trouver le driver JDBC Oracle dans le dossier driver
+# Recherche du fichier JAR dans le dossier driver
+JAR_FILE=$(find $DRIVERDIR -name "*.jar" | head -1)
 
-# Mandefa anle izy 
+# Vérifier si le driver a été trouvé
+if [ -z "$JAR_FILE" ]; then
+    echo "Erreur : Aucun fichier JAR trouvé dans le dossier $DRIVERDIR"
+    exit 1
+fi
+
+echo "Utilisation du driver: $JAR_FILE"
+
+# Compilation des fichiers avec le driver JDBC
+find $DIRECTORY -name *.java > source.txt
+javac --module-path "$LIBRARY" --add-modules javafx.controls -cp "$JAR_FILE" -d $CLASSDIR/$DIRECTORY @source.txt
+
+# Trouver le main
 cd $CLASSDIR/$DIRECTORY 
 find * -name Main* > valiny.txt  
 VALINY=valiny.txt
@@ -21,7 +34,6 @@ VAL=$(cat $VALINY)
 echo "Le main : $VAL "
 echo " "
 
-# Manamboatra ny valiny 
 # Fonction pour éditer le fichier valiny.txt
 function edit_valiny() {
     local input_file="valiny.txt"
@@ -39,9 +51,7 @@ function edit_valiny() {
         return 1
     fi
 
-    # Manamboatra valiny.txt
-    # 2. Remplacer '/' par '.'
-    # 3. Supprimer l'extension .class
+    # Transformer le chemin
     sed 's|/|.|g' "$input_file" | 
     sed 's|.class||g' > "$temp_file"
 
@@ -52,5 +62,6 @@ function edit_valiny() {
     cat "$input_file"
 }
 
-java --module-path "../../$LIBRARY" --add-modules javafx.controls "$(edit_valiny)"
-
+# Exécution avec le driver JDBC Oracle
+# Note: le chemin relatif est différent car on est dans $CLASSDIR/$DIRECTORY
+java --module-path "../../$LIBRARY" --add-modules javafx.controls -cp "../../$JAR_FILE:." "$(edit_valiny)"

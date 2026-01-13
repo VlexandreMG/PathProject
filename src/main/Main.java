@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import ui.layout.RootLayout;
 import ui.node.ListView;
 import ui.node.Dashboard;
+import ui.node.SelectionPanel;
 import java.util.*;
 
 public class Main extends Application {
@@ -32,10 +33,21 @@ public class Main extends Application {
         cars.add(car2);
         cars.add(car3);
 
-        // Création des paths
-        Path path1 = new Path(12.5, 2.4, "PathA");
-        Path path2 = new Path(7.8, 1.8, "PathB");
-        Path path3 = new Path(20.0, 3.0, "PathC");
+        // Création des points (avant paths et routes car ils en dépendent)
+        Point point1 = new Point(10.5, 20.3, "PointA");
+        Point point2 = new Point(15.2, 25.8, "PointB");
+        Point point3 = new Point(8.7, 12.1, "PointC");
+        Point point4 = new Point(5.0, 15.0, "PointD");
+        List<Point> points = new ArrayList<>();
+        points.add(point1);
+        points.add(point2);
+        points.add(point3);
+        points.add(point4);
+
+        // Création des paths (nécessite les points)
+        Path path1 = new Path(point1, point2, 12.5, 2.4, "PathA");
+        Path path2 = new Path(point2, point3, 7.8, 1.8, "PathB");
+        Path path3 = new Path(point1, point3, 20.0, 3.0, "PathC");
         List<Path> paths = new ArrayList<>();
         paths.add(path1);
         paths.add(path2);
@@ -50,19 +62,10 @@ public class Main extends Application {
         holes.add(hole2);
         holes.add(hole3);
 
-        // Création des points
-        Point point1 = new Point(10.5, 20.3, "PointA");
-        Point point2 = new Point(15.2, 25.8, "PointB");
-        Point point3 = new Point(8.7, 12.1, "PointC");
-        List<Point> points = new ArrayList<>();
-        points.add(point1);
-        points.add(point2);
-        points.add(point3);
-
-        // Création des routes
-        Route route1 = new Route(25.5, 30.0, point1, point2, Arrays.asList(path1, path2));
-        Route route2 = new Route(18.3, 22.5, point2, point3, Arrays.asList(path2, path3));
-        Route route3 = new Route(32.1, 40.0, point1, point3, Arrays.asList(path1, path3));
+        // Création des routes (nécessite les points et paths)
+        Route route1 = new Route(Arrays.asList(point1, point2), 25.5, 30.0, point1, point2, Arrays.asList(path1));
+        Route route2 = new Route(Arrays.asList(point2, point3), 18.3, 22.5, point2, point3, Arrays.asList(path2));
+        Route route3 = new Route(Arrays.asList(point1, point4, point3), 32.1, 40.0, point1, point3, Arrays.asList(path1, path3));
         List<Route> routes = new ArrayList<>();
         routes.add(route1);
         routes.add(route2);
@@ -81,8 +84,15 @@ public class Main extends Application {
         Dashboard dashboard = new Dashboard(cars, paths, holes, points, routes, types);
         rootLayout.getBorderPane().setLeft(dashboard);
 
+        // Création du panneau de sélection à droite
+        SelectionPanel selectionPanel = new SelectionPanel();
+        rootLayout.getBorderPane().setRight(selectionPanel);
+        
+        // Lier le SelectionPanel à ListView pour la mise à jour automatique
+        ListView.setSelectionPanel(selectionPanel);
+
         //Creation de la scene
-        Scene scene = new Scene(rootLayout.getBorderPane(), 800, 600);
+        Scene scene = new Scene(rootLayout.getBorderPane(), 1000, 600);
 
         primaryStage.setTitle("PathProject");
         primaryStage.setScene(scene);

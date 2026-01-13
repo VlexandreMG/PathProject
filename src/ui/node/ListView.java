@@ -37,8 +37,16 @@ public class ListView extends VBox {
 
     // stockage simple et global d'une ou plusieurs sélections (objets) utilisable partout
     private static List<Object> savedObjects = new ArrayList<>();
+    private static SelectionPanel selectionPanel = null;
     private Button saveButton;
     private Label savedStatus;
+
+    /**
+     * Lie le SelectionPanel pour mettre à jour l'affichage automatiquement
+     */
+    public static void setSelectionPanel(SelectionPanel panel) {
+        selectionPanel = panel;
+    }
 
     /**
      * Crée une ListView vide.
@@ -117,6 +125,11 @@ public class ListView extends VBox {
                     }
                 }
                 savedStatus.setText("Saved: " + savedObjects.size() + " item(s)");
+                
+                // Mettre à jour le SelectionPanel si lié
+                if (selectionPanel != null) {
+                    selectionPanel.updateSelections();
+                }
             }
         });
 
@@ -132,70 +145,131 @@ public class ListView extends VBox {
     }
 
     /**
-     * Ouvre une petite fenêtre modale vide (placeholder).
+     * Ouvre une petite fenêtre modale adaptée au type de modèle.
      */
     public void opendialog() {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Ajouter");
 
-        // Contenu : chaque label avec son TextField (disposés en HBox)
-        Label nameLabel = new Label("Nom :");
-        TextField nom = new TextField();
-        nom.setPromptText("Entrez le nom de la voiture");
-        HBox rowNom = new HBox(8, nameLabel, nom);
-        HBox.setHgrow(nom, Priority.ALWAYS);
+        VBox fieldsBox = new VBox(8);
+        fieldsBox.setPadding(new Insets(10));
 
-        Label vitesseMaxLabel = new Label("Vitesse Max :");
-        TextField vitesseMax = new TextField();
-        vitesseMax.setPromptText("Entrez la vitesse max");
-        HBox rowVitesse = new HBox(8, vitesseMaxLabel, vitesseMax);
-        HBox.setHgrow(vitesseMax, Priority.ALWAYS);
-
-        Label typeLabel = new Label("Type :");
-        TextField type = new TextField();
-        type.setPromptText("Entrez le type");
-        HBox rowType = new HBox(8, typeLabel, type);
-        HBox.setHgrow(type, Priority.ALWAYS);
-
-        Label longueurLabel = new Label("Longueur :");
-        TextField longueur = new TextField();
-        longueur.setPromptText("Entrez la longueur");
-        HBox rowLong = new HBox(8, longueurLabel, longueur);
-        HBox.setHgrow(longueur, Priority.ALWAYS);
-
-        Label largeurLabel = new Label("Largeur :");
-        TextField largeur = new TextField();
-        largeur.setPromptText("Entrez la largeur");
-        HBox rowLarge = new HBox(8, largeurLabel, largeur);
-        HBox.setHgrow(largeur, Priority.ALWAYS);
-
-        Button ok = new Button("OK");
-        ok.setDefaultButton(true);
-        // Quand on clique sur OK, récupérer le texte et l'ajouter à la liste
-        ok.setOnAction(e -> {
-            String nomText = nom.getText() == null ? "" : nom.getText().trim();
-            String vitesseMaxText = vitesseMax.getText();
-            String typeText = type.getText();
-            String longueurText = longueur.getText();
-            String largeurText = largeur.getText();
-            //Mbola ho alefa any anaty base 
-            if (!nomText.isEmpty()) {
-                fxList.getItems().add(nomText);
+        // Déterminer le type de modèle et créer les champs appropriés
+        if (objectItems != null && !objectItems.isEmpty()) {
+            Object firstItem = objectItems.get(0);
+            String modelType = firstItem.getClass().getSimpleName();
+            
+            // Créer les champs selon le type de modèle
+            java.util.List<TextField> fields = new java.util.ArrayList<>();
+            
+            switch (modelType) {
+                case "Car":
+                    fieldsBox.getChildren().addAll(
+                        createField("Nom :", "Entrez le nom", fields),
+                        createField("Vitesse Max :", "Entrez la vitesse max", fields),
+                        createField("ID Type :", "Entrez l'ID type", fields),
+                        createField("Longueur :", "Entrez la longueur", fields),
+                        createField("Largeur :", "Entrez la largeur", fields)
+                    );
+                    break;
+                    
+                case "Path":
+                    fieldsBox.getChildren().addAll(
+                        createField("Nom :", "Entrez le nom", fields),
+                        createField("Distance :", "Entrez la distance", fields),
+                        createField("Largeur :", "Entrez la largeur", fields),
+                        new Label("Note: Points non gérés dans ce dialog simple")
+                    );
+                    break;
+                    
+                case "Hole":
+                    fieldsBox.getChildren().addAll(
+                        createField("ID Path :", "Entrez l'ID du path", fields),
+                        createField("Pourcentage :", "Entrez le pourcentage", fields),
+                        createField("KmAge :", "Entrez le kmAge", fields)
+                    );
+                    break;
+                    
+                case "Point":
+                    fieldsBox.getChildren().addAll(
+                        createField("Nom :", "Entrez le nom", fields),
+                        createField("X :", "Entrez la coordonnée X", fields),
+                        createField("Y :", "Entrez la coordonnée Y", fields)
+                    );
+                    break;
+                    
+                case "Route":
+                    fieldsBox.getChildren().addAll(
+                        createField("Distance :", "Entrez la distance", fields),
+                        createField("Durée :", "Entrez la durée", fields),
+                        new Label("Note: Points et Paths non gérés dans ce dialog simple")
+                    );
+                    break;
+                    
+                case "Type":
+                    fieldsBox.getChildren().addAll(
+                        createField("ID :", "Entrez l'ID", fields),
+                        createField("Nom :", "Entrez le nom", fields)
+                    );
+                    break;
+                    
+                default:
+                    fieldsBox.getChildren().add(new Label("Type inconnu: " + modelType));
             }
-            dialog.close();
-        });
+            
+            Button ok = new Button("OK");
+            ok.setDefaultButton(true);
+            ok.setOnAction(e -> {
+                // Pour l'instant, juste ajouter le premier champ (nom ou id) à la liste d'affichage
+                if (!fields.isEmpty() && fields.get(0).getText() != null && !fields.get(0).getText().trim().isEmpty()) {
+                    String label = fields.get(0).getText().trim();
+                    fxList.getItems().add(label);
+                }
+                dialog.close();
+            });
+            
+            fieldsBox.getChildren().add(ok);
+            
+        } else {
+            // Mode String simple (pas d'objets)
+            TextField nom = new TextField();
+            nom.setPromptText("Entrez le texte");
+            HBox row = new HBox(8, new Label("Texte :"), nom);
+            HBox.setHgrow(nom, Priority.ALWAYS);
+            
+            Button ok = new Button("OK");
+            ok.setDefaultButton(true);
+            ok.setOnAction(e -> {
+                String text = nom.getText() == null ? "" : nom.getText().trim();
+                if (!text.isEmpty()) {
+                    fxList.getItems().add(text);
+                }
+                dialog.close();
+            });
+            
+            fieldsBox.getChildren().addAll(row, ok);
+        }
 
-        VBox box = new VBox(8, rowNom, rowVitesse, rowType, rowLong, rowLarge, ok);
-        box.setPadding(new Insets(10));
-
-        Scene scene = new Scene(box);
+        Scene scene = new Scene(fieldsBox);
         dialog.setScene(scene);
         dialog.setWidth(420);
-        dialog.setHeight(320);
-        // Demander le focus sur le premier champ
-        nom.requestFocus();
+        dialog.setHeight(Math.min(500, 150 + fieldsBox.getChildren().size() * 40));
         dialog.showAndWait();
+    }
+    
+    /**
+     * Crée un champ de saisie avec son label
+     */
+    private HBox createField(String labelText, String prompt, java.util.List<TextField> fields) {
+        Label label = new Label(labelText);
+        label.setMinWidth(120);
+        TextField field = new TextField();
+        field.setPromptText(prompt);
+        fields.add(field);
+        HBox row = new HBox(8, label, field);
+        HBox.setHgrow(field, Priority.ALWAYS);
+        return row;
     }
 
     /**
