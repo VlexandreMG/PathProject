@@ -41,7 +41,7 @@
                 ✔ Tadidiny le code oe ireto ny choix an'ilay user @done(26-01-12 16:24)
 ☐ Bases 
     ☐ Postgre (Car) / Oracle (Path)
-        ☐ Connexion 
+        ☐ Connexion
         ✔ Insertion données @done(26-01-13 04:28)
         ✔ Creation tables @done(26-01-13 04:28)
         ☐ Requete pour mvc 
