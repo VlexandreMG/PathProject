@@ -10,26 +10,61 @@ DRIVERDIR="driver"  # Ajout du dossier driver
 rm -rf $CLASSDIR
 mkdir -p $CLASSDIR/$DIRECTORY
 
-# Trouver le driver JDBC Oracle dans le dossier driver
-# Recherche du fichier JAR dans le dossier driver
-JAR_FILE=$(find $DRIVERDIR -name "*.jar" | head -1)
+# Trouver TOUS les drivers JDBC dans le dossier driver
+# Recherche de tous les fichiers JAR dans le dossier driver
+JAR_FILES=$(find $DRIVERDIR -name "*.jar" 2>/dev/null)
 
-# Vérifier si le driver a été trouvé
-if [ -z "$JAR_FILE" ]; then
+# Vérifier si des drivers ont été trouvés
+if [ -z "$JAR_FILES" ]; then
     echo "Erreur : Aucun fichier JAR trouvé dans le dossier $DRIVERDIR"
     exit 1
 fi
 
-echo "Utilisation du driver: $JAR_FILE"
+# Compter le nombre de drivers trouvés
+JAR_COUNT=$(echo "$JAR_FILES" | wc -l)
+echo "Nombre de drivers trouvés : $JAR_COUNT"
 
-# Compilation des fichiers avec le driver JDBC
+# Afficher la liste des drivers
+echo "Drivers disponibles :"
+echo "$JAR_FILES" | while read -r jar; do
+    echo "  - $jar"
+done
+
+# Construire le classpath avec tous les drivers
+# Convertir la liste des fichiers en un seul chemin avec séparateur ':'
+CLASS_PATH=""
+for jar in $JAR_FILES; do
+    if [ -z "$CLASS_PATH" ]; then
+        CLASS_PATH="$jar"
+    else
+        CLASS_PATH="$CLASS_PATH:$jar"
+    fi
+done
+
+echo "Classpath : $CLASS_PATH"
+echo " "
+
+# Compilation des fichiers avec tous les drivers JDBC
 find $DIRECTORY -name *.java > source.txt
-javac --module-path "$LIBRARY" --add-modules javafx.controls -cp "$JAR_FILE" -d $CLASSDIR/$DIRECTORY @source.txt
+javac --module-path "$LIBRARY" --add-modules javafx.controls -cp "$CLASS_PATH" -d $CLASSDIR/$DIRECTORY @source.txt
+
+# Vérifier si la compilation a réussi
+if [ $? -ne 0 ]; then
+    echo "Erreur lors de la compilation"
+    exit 1
+fi
 
 # Trouver le main
 cd $CLASSDIR/$DIRECTORY 
 find * -name Main* > valiny.txt  
 VALINY=valiny.txt
+
+# Vérifier si un main a été trouvé
+if [ ! -s "$VALINY" ]; then
+    echo "Erreur : Aucune classe Main trouvée"
+    exit 1
+fi
+
 VAL=$(cat $VALINY)
 echo "Le main : $VAL "
 echo " "
@@ -58,10 +93,24 @@ function edit_valiny() {
     # Remplacer l'ancien fichier par le nouveau
     mv "$temp_file" "$input_file"
 
-    # Afficher le contenu final
+    # Retourner le contenu modifié
     cat "$input_file"
 }
 
-# Exécution avec le driver JDBC Oracle
+# Récupérer le nom de la classe Main modifié
+MAIN_CLASS=$(edit_valiny | head -1)
+
+echo "Exécution avec $JAR_COUNT driver(s)..."
+echo "Classe principale : $MAIN_CLASS"
+echo " "
+
+# Exécution avec tous les drivers JDBC
 # Note: le chemin relatif est différent car on est dans $CLASSDIR/$DIRECTORY
-java --module-path "../../$LIBRARY" --add-modules javafx.controls -cp "../../$JAR_FILE:." "$(edit_valiny)"
+# Construire le classpath pour l'exécution
+EXEC_CLASS_PATH=""
+for jar in $JAR_FILES; do
+    EXEC_CLASS_PATH="../../$jar:$EXEC_CLASS_PATH"
+done
+EXEC_CLASS_PATH="${EXEC_CLASS_PATH}."
+
+java --module-path "../../$LIBRARY" --add-modules javafx.controls -cp "$EXEC_CLASS_PATH" "$MAIN_CLASS"

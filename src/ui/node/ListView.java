@@ -37,16 +37,8 @@ public class ListView extends VBox {
 
     // stockage simple et global d'une ou plusieurs sélections (objets) utilisable partout
     private static List<Object> savedObjects = new ArrayList<>();
-    private static SelectionPanel selectionPanel = null;
     private Button saveButton;
     private Label savedStatus;
-
-    /**
-     * Lie le SelectionPanel pour mettre à jour l'affichage automatiquement
-     */
-    public static void setSelectionPanel(SelectionPanel panel) {
-        selectionPanel = panel;
-    }
 
     /**
      * Crée une ListView vide.
@@ -126,10 +118,6 @@ public class ListView extends VBox {
                 }
                 savedStatus.setText("Saved: " + savedObjects.size() + " item(s)");
                 
-                // Mettre à jour le SelectionPanel si lié
-                if (selectionPanel != null) {
-                    selectionPanel.updateSelections();
-                }
             }
         });
 
@@ -221,11 +209,112 @@ public class ListView extends VBox {
             Button ok = new Button("OK");
             ok.setDefaultButton(true);
             ok.setOnAction(e -> {
-                // Pour l'instant, juste ajouter le premier champ (nom ou id) à la liste d'affichage
-                if (!fields.isEmpty() && fields.get(0).getText() != null && !fields.get(0).getText().trim().isEmpty()) {
-                    String label = fields.get(0).getText().trim();
-                    fxList.getItems().add(label);
+                try {
+                    // Insérer l'objet dans la base de données selon le type
+                    switch (modelType) {
+                        case "Car":
+                            if (fields.size() >= 5) {
+                                String nom = fields.get(0).getText().trim();
+                                double vitesseMax = Double.parseDouble(fields.get(1).getText().trim());
+                                int idType = Integer.parseInt(fields.get(2).getText().trim());
+                                double longueur = Double.parseDouble(fields.get(3).getText().trim());
+                                double largeur = Double.parseDouble(fields.get(4).getText().trim());
+                                
+                                mvc.model.Car car = new mvc.model.Car(nom, vitesseMax, idType, longueur, largeur);
+                                int id = car.insert();
+                                
+                                if (id > 0) {
+                                    // Ajouter à la liste d'affichage
+                                    fxList.getItems().add(nom);
+                                    System.out.println("✓ Car insérée avec succès (ID: " + id + ")");
+                                }
+                            }
+                            break;
+                            
+                        case "Point":
+                            if (fields.size() >= 3) {
+                                String nom = fields.get(0).getText().trim();
+                                double x = Double.parseDouble(fields.get(1).getText().trim());
+                                double y = Double.parseDouble(fields.get(2).getText().trim());
+                                
+                                mvc.model.Point point = new mvc.model.Point(x, y, nom);
+                                int id = point.insert();
+                                
+                                if (id > 0) {
+                                    fxList.getItems().add(nom);
+                                    System.out.println("✓ Point inséré avec succès (ID: " + id + ")");
+                                }
+                            }
+                            break;
+                            
+                        case "Hole":
+                            if (fields.size() >= 3) {
+                                int idPath = Integer.parseInt(fields.get(0).getText().trim());
+                                double percent = Double.parseDouble(fields.get(1).getText().trim());
+                                double kmAge = Double.parseDouble(fields.get(2).getText().trim());
+                                
+                                mvc.model.Hole hole = new mvc.model.Hole(idPath, percent, kmAge);
+                                int id = hole.insert();
+                                
+                                if (id > 0) {
+                                    fxList.getItems().add("Hole (Path: " + idPath + ")");
+                                    System.out.println("✓ Hole inséré avec succès (ID: " + id + ")");
+                                }
+                            }
+                            break;
+                            
+                        case "Type":
+                            if (fields.size() >= 2) {
+                                int id = Integer.parseInt(fields.get(0).getText().trim());
+                                String nom = fields.get(1).getText().trim();
+                                
+                                mvc.model.Type type = new mvc.model.Type(id, nom);
+                                int insertedId = type.insert();
+                                
+                                if (insertedId > 0) {
+                                    fxList.getItems().add(nom);
+                                    System.out.println("✓ Type inséré avec succès (ID: " + insertedId + ")");
+                                }
+                            }
+                            break;
+                            
+                        case "Path":
+                            // Path nécessite des Points, on le skip pour l'instant
+                            System.out.println("⚠ Path nécessite des objets Point (non géré dans ce dialog)");
+                            fxList.getItems().add("Path (non inséré - nécessite Points)");
+                            break;
+                            
+                        case "Route":
+                            // Route nécessite des Points et Paths, on le skip
+                            System.out.println("⚠ Route nécessite des objets Point et Path (non géré dans ce dialog)");
+                            fxList.getItems().add("Route (non inséré - nécessite Points/Paths)");
+                            break;
+                            
+                        default:
+                            // Fallback: juste afficher
+                            if (!fields.isEmpty() && fields.get(0).getText() != null && !fields.get(0).getText().trim().isEmpty()) {
+                                String label = fields.get(0).getText().trim();
+                                fxList.getItems().add(label);
+                            }
+                    }
+                } catch (NumberFormatException ex) {
+                    System.err.println("❌ Erreur de format: " + ex.getMessage());
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Erreur de saisie");
+                    alert.setContentText("Veuillez entrer des valeurs valides (nombres pour les champs numériques)");
+                    alert.showAndWait();
+                    return; // Ne pas fermer le dialog
+                } catch (java.sql.SQLException ex) {
+                    System.err.println("❌ Erreur SQL: " + ex.getMessage());
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Erreur de base de données");
+                    alert.setContentText("Erreur lors de l'insertion: " + ex.getMessage());
+                    alert.showAndWait();
+                    return; // Ne pas fermer le dialog
                 }
+                
                 dialog.close();
             });
             

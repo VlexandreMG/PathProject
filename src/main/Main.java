@@ -13,7 +13,6 @@ import javafx.scene.layout.BorderPane;
 import ui.layout.RootLayout;
 import ui.node.ListView;
 import ui.node.Dashboard;
-import ui.node.SelectionPanel;
 import java.util.*;
 
 public class Main extends Application {
@@ -83,13 +82,6 @@ public class Main extends Application {
         // Passer les listes au Dashboard
         Dashboard dashboard = new Dashboard(cars, paths, holes, points, routes, types);
         rootLayout.getBorderPane().setLeft(dashboard);
-
-        // Création du panneau de sélection à droite
-        SelectionPanel selectionPanel = new SelectionPanel();
-        rootLayout.getBorderPane().setRight(selectionPanel);
-        
-        // Lier le SelectionPanel à ListView pour la mise à jour automatique
-        ListView.setSelectionPanel(selectionPanel);
 
         //Creation de la scene
         Scene scene = new Scene(rootLayout.getBorderPane(), 1000, 600);
