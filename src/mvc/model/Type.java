@@ -122,4 +122,28 @@ public class Type {
             return false;
         }
     }
+
+    /**
+     * Récupère tous les types de la base de données
+     * @return Liste de tous les types
+     */
+    public static java.util.List<Type> getAll() throws SQLException {
+        String sql = "SELECT * FROM Type";
+        java.util.List<Type> types = new java.util.ArrayList<>();
+        
+        try (Connection conn = ConnectionPg.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Type type = new Type(
+                    rs.getInt("id"),
+                    rs.getString("nom")
+                );
+                types.add(type);
+            }
+            System.out.println("✓ " + types.size() + " type(s) récupéré(s)");
+            return types;
+        }
+    }
 }

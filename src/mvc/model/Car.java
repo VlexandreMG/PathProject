@@ -176,4 +176,32 @@ public class Car {
             return false;
         }
     }
+
+    /**
+     * Récupère toutes les voitures de la base de données
+     * @return Liste de toutes les voitures
+     */
+    public static java.util.List<Car> getAll() throws SQLException {
+        String sql = "SELECT * FROM Car";
+        java.util.List<Car> cars = new java.util.ArrayList<>();
+        
+        try (Connection conn = ConnectionPg.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Car car = new Car(
+                    rs.getString("nom"),
+                    rs.getDouble("vitesse_max"),
+                    rs.getInt("id_type"),
+                    rs.getDouble("longueur"),
+                    rs.getDouble("largeur")
+                );
+                car.setId(rs.getInt("id"));
+                cars.add(car);
+            }
+            System.out.println("✓ " + cars.size() + " voiture(s) récupérée(s)");
+            return cars;
+        }
+    }
 }

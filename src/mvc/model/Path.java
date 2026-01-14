@@ -227,4 +227,51 @@ public class Path {
             return false;
         }
     }
+
+    /**
+     * Récupère tous les paths de la base de données
+     * @return Liste de tous les paths
+     */
+    public static java.util.List<Path> getAll() throws SQLException {
+        String sql = "SELECT p.*, " +
+                     "pd.id as dep_id, pd.x as dep_x, pd.y as dep_y, pd.nom as dep_nom, " +
+                     "pa.id as arr_id, pa.x as arr_x, pa.y as arr_y, pa.nom as arr_nom " +
+                     "FROM Path p " +
+                     "JOIN Point pd ON p.point_dep_id = pd.id " +
+                     "JOIN Point pa ON p.point_arr_id = pa.id";
+        java.util.List<Path> paths = new java.util.ArrayList<>();
+        
+        try (Connection conn = ConnectionOr.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Point pointDep = new Point(
+                    rs.getDouble("dep_x"),
+                    rs.getDouble("dep_y"),
+                    rs.getString("dep_nom")
+                );
+                pointDep.setId(rs.getInt("dep_id"));
+                
+                Point pointArr = new Point(
+                    rs.getDouble("arr_x"),
+                    rs.getDouble("arr_y"),
+                    rs.getString("arr_nom")
+                );
+                pointArr.setId(rs.getInt("arr_id"));
+                
+                Path path = new Path(
+                    pointDep,
+                    pointArr,
+                    rs.getDouble("distance"),
+                    rs.getDouble("largeur"),
+                    rs.getString("nom")
+                );
+                path.setId(rs.getInt("id"));
+                paths.add(path);
+            }
+            System.out.println("✓ " + paths.size() + " path(s) récupéré(s)");
+            return paths;
+        }
+    }
 }

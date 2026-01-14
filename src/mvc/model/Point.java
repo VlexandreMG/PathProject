@@ -169,4 +169,30 @@ public class Point {
             return false;
         }
     }
+
+    /**
+     * Récupère tous les points de la base de données
+     * @return Liste de tous les points
+     */
+    public static java.util.List<Point> getAll() throws SQLException {
+        String sql = "SELECT * FROM Point";
+        java.util.List<Point> points = new java.util.ArrayList<>();
+        
+        try (Connection conn = ConnectionOr.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Point point = new Point(
+                    rs.getDouble("x"),
+                    rs.getDouble("y"),
+                    rs.getString("nom")
+                );
+                point.setId(rs.getInt("id"));
+                points.add(point);
+            }
+            System.out.println("✓ " + points.size() + " point(s) récupéré(s)");
+            return points;
+        }
+    }
 }

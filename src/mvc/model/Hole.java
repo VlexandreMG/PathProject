@@ -183,4 +183,31 @@ public class Hole {
             return false;
         }
     }
+
+    /**
+     * Récupère tous les holes de la base de données
+     * @return Liste de tous les holes
+     */
+    public static java.util.List<Hole> getAll() throws SQLException {
+        String sql = "SELECT * FROM Hole";
+        java.util.List<Hole> holes = new java.util.ArrayList<>();
+        
+        try (Connection conn = ConnectionOr.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Hole hole = new Hole(
+                    rs.getInt("id_path"),
+                    rs.getDouble("percent"),
+                    rs.getDouble("km_age"),
+                    rs.getDouble("finkm_age")
+                );
+                hole.setId(rs.getInt("id"));
+                holes.add(hole);
+            }
+            System.out.println("✓ " + holes.size() + " hole(s) récupéré(s)");
+            return holes;
+        }
+    }
 }
