@@ -84,26 +84,44 @@ public class Path {
      * @return l'ID généré ou -1 en cas d'erreur
      */
     public int insert() throws SQLException {
-        String sql = "INSERT INTO Path (nom, distance, largeur, point_dep_id, point_arr_id) VALUES (?, ?, ?, ?, ?)";
+        String sql;
+        if (this.id > 0) {
+            // Si l'ID est déjà défini, l'utiliser
+            sql = "INSERT INTO Path (id, nom, distance, largeur, point_dep_id, point_arr_id) VALUES (?, ?, ?, ?, ?, ?)";
+        } else {
+            // Sinon, laisser la base générer l'ID
+            sql = "INSERT INTO Path (nom, distance, largeur, point_dep_id, point_arr_id) VALUES (?, ?, ?, ?, ?)";
+        }
         
         try (Connection conn = ConnectionOr.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"id"})) {
             
-            pstmt.setString(1, this.nom);
-            pstmt.setDouble(2, this.distance);
-            pstmt.setDouble(3, this.largeur);
-            pstmt.setInt(4, this.pointDep.getId());
-            pstmt.setInt(5, this.pointArr.getId());
+            if (this.id > 0) {
+                pstmt.setInt(1, this.id);
+                pstmt.setString(2, this.nom);
+                pstmt.setDouble(3, this.distance);
+                pstmt.setDouble(4, this.largeur);
+                pstmt.setInt(5, this.pointDep.getId());
+                pstmt.setInt(6, this.pointArr.getId());
+            } else {
+                pstmt.setString(1, this.nom);
+                pstmt.setDouble(2, this.distance);
+                pstmt.setDouble(3, this.largeur);
+                pstmt.setInt(4, this.pointDep.getId());
+                pstmt.setInt(5, this.pointArr.getId());
+            }
             
             int rowsAffected = pstmt.executeUpdate();
             
             if (rowsAffected > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    this.id = rs.getInt(1);
-                    System.out.println("Path inséré avec l'ID: " + this.id);
-                    return this.id;
+                if (this.id <= 0) {
+                    ResultSet rs = pstmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        this.id = rs.getInt(1);
+                    }
                 }
+                System.out.println("Path inséré avec l'ID: " + this.id);
+                return this.id;
             }
             return -1;
         }

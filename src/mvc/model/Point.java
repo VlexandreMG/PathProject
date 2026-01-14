@@ -54,24 +54,40 @@ public class Point {
      * @return l'ID généré ou -1 en cas d'erreur
      */
     public int insert() throws SQLException {
-        String sql = "INSERT INTO Point (x, y, nom) VALUES (?, ?, ?)";
+        String sql;
+        if (this.id > 0) {
+            // Si l'ID est déjà défini, l'utiliser
+            sql = "INSERT INTO Point (id, x, y, nom) VALUES (?, ?, ?, ?)";
+        } else {
+            // Sinon, laisser la base générer l'ID
+            sql = "INSERT INTO Point (x, y, nom) VALUES (?, ?, ?)";
+        }
         
         try (Connection conn = ConnectionOr.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"id"})) {
             
-            pstmt.setDouble(1, this.x);
-            pstmt.setDouble(2, this.y);
-            pstmt.setString(3, this.nom);
+            if (this.id > 0) {
+                pstmt.setInt(1, this.id);
+                pstmt.setDouble(2, this.x);
+                pstmt.setDouble(3, this.y);
+                pstmt.setString(4, this.nom);
+            } else {
+                pstmt.setDouble(1, this.x);
+                pstmt.setDouble(2, this.y);
+                pstmt.setString(3, this.nom);
+            }
             
             int rowsAffected = pstmt.executeUpdate();
             
             if (rowsAffected > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    this.id = rs.getInt(1);
-                    System.out.println("Point inséré avec l'ID: " + this.id);
-                    return this.id;
+                if (this.id <= 0) {
+                    ResultSet rs = pstmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        this.id = rs.getInt(1);
+                    }
                 }
+                System.out.println("Point inséré avec l'ID: " + this.id);
+                return this.id;
             }
             return -1;
         }

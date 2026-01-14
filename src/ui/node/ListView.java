@@ -164,23 +164,28 @@ public class ListView extends VBox {
                     
                 case "Path":
                     fieldsBox.getChildren().addAll(
+                        createField("ID :", "Entrez l'ID", fields),
                         createField("Nom :", "Entrez le nom", fields),
                         createField("Distance :", "Entrez la distance", fields),
                         createField("Largeur :", "Entrez la largeur", fields),
-                        new Label("Note: Points non gérés dans ce dialog simple")
+                        createField("ID Point Départ :", "Entrez l'ID du point de départ", fields),
+                        createField("ID Point Arrivée :", "Entrez l'ID du point d'arrivée", fields)
                     );
                     break;
                     
                 case "Hole":
                     fieldsBox.getChildren().addAll(
+                        createField("ID :", "Entrez l'ID", fields),
                         createField("ID Path :", "Entrez l'ID du path", fields),
                         createField("Pourcentage :", "Entrez le pourcentage", fields),
-                        createField("KmAge :", "Entrez le kmAge", fields)
+                        createField("KmAge :", "Entrez le kmAge", fields),
+                        createField("FinKmAge :", "Entrez le finkmAge", fields)
                     );
                     break;
                     
                 case "Point":
                     fieldsBox.getChildren().addAll(
+                        createField("ID :", "Entrez l'ID", fields),
                         createField("Nom :", "Entrez le nom", fields),
                         createField("X :", "Entrez la coordonnée X", fields),
                         createField("Y :", "Entrez la coordonnée Y", fields)
@@ -232,33 +237,38 @@ public class ListView extends VBox {
                             break;
                             
                         case "Point":
-                            if (fields.size() >= 3) {
-                                String nom = fields.get(0).getText().trim();
-                                double x = Double.parseDouble(fields.get(1).getText().trim());
-                                double y = Double.parseDouble(fields.get(2).getText().trim());
+                            if (fields.size() >= 4) {
+                                int id = Integer.parseInt(fields.get(0).getText().trim());
+                                String nom = fields.get(1).getText().trim();
+                                double x = Double.parseDouble(fields.get(2).getText().trim());
+                                double y = Double.parseDouble(fields.get(3).getText().trim());
                                 
                                 mvc.model.Point point = new mvc.model.Point(x, y, nom);
-                                int id = point.insert();
+                                point.setId(id);
+                                int insertedId = point.insert();
                                 
-                                if (id > 0) {
+                                if (insertedId > 0) {
                                     fxList.getItems().add(nom);
-                                    System.out.println("✓ Point inséré avec succès (ID: " + id + ")");
+                                    System.out.println("✓ Point inséré avec succès (ID: " + insertedId + ")");
                                 }
                             }
                             break;
                             
                         case "Hole":
-                            if (fields.size() >= 3) {
-                                int idPath = Integer.parseInt(fields.get(0).getText().trim());
-                                double percent = Double.parseDouble(fields.get(1).getText().trim());
-                                double kmAge = Double.parseDouble(fields.get(2).getText().trim());
+                            if (fields.size() >= 5) {
+                                int id = Integer.parseInt(fields.get(0).getText().trim());
+                                int idPath = Integer.parseInt(fields.get(1).getText().trim());
+                                double percent = Double.parseDouble(fields.get(2).getText().trim());
+                                double kmAge = Double.parseDouble(fields.get(3).getText().trim());
+                                double finkmAge = Double.parseDouble(fields.get(4).getText().trim());
                                 
-                                mvc.model.Hole hole = new mvc.model.Hole(idPath, percent, kmAge);
-                                int id = hole.insert();
+                                mvc.model.Hole hole = new mvc.model.Hole(idPath, percent, kmAge, finkmAge);
+                                hole.setId(id);
+                                int insertedId = hole.insert();
                                 
-                                if (id > 0) {
+                                if (insertedId > 0) {
                                     fxList.getItems().add("Hole (Path: " + idPath + ")");
-                                    System.out.println("✓ Hole inséré avec succès (ID: " + id + ")");
+                                    System.out.println("✓ Hole inséré avec succès (ID: " + insertedId + ")");
                                 }
                             }
                             break;
@@ -279,9 +289,37 @@ public class ListView extends VBox {
                             break;
                             
                         case "Path":
-                            // Path nécessite des Points, on le skip pour l'instant
-                            System.out.println("⚠ Path nécessite des objets Point (non géré dans ce dialog)");
-                            fxList.getItems().add("Path (non inséré - nécessite Points)");
+                            if (fields.size() >= 6) {
+                                int id = Integer.parseInt(fields.get(0).getText().trim());
+                                String nom = fields.get(1).getText().trim();
+                                double distance = Double.parseDouble(fields.get(2).getText().trim());
+                                double largeur = Double.parseDouble(fields.get(3).getText().trim());
+                                int pointDepId = Integer.parseInt(fields.get(4).getText().trim());
+                                int pointArrId = Integer.parseInt(fields.get(5).getText().trim());
+                                
+                                // Récupérer les points depuis la base
+                                mvc.model.Point pointDep = mvc.model.Point.getById(pointDepId);
+                                mvc.model.Point pointArr = mvc.model.Point.getById(pointArrId);
+                                
+                                if (pointDep != null && pointArr != null) {
+                                    mvc.model.Path path = new mvc.model.Path(pointDep, pointArr, distance, largeur, nom);
+                                    path.setId(id);
+                                    int insertedId = path.insert();
+                                    
+                                    if (insertedId > 0) {
+                                        fxList.getItems().add(nom);
+                                        System.out.println("✓ Path inséré avec succès (ID: " + insertedId + ")");
+                                    }
+                                } else {
+                                    System.err.println("❌ Point(s) introuvable(s)");
+                                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                                    alert.setTitle("Erreur");
+                                    alert.setHeaderText("Points introuvables");
+                                    alert.setContentText("Les points avec les IDs " + pointDepId + " et/ou " + pointArrId + " n'existent pas.");
+                                    alert.showAndWait();
+                                    return; // Ne pas fermer le dialog
+                                }
+                            }
                             break;
                             
                         case "Route":

@@ -53,18 +53,18 @@ public class Main extends Application {
         paths.add(path3);
 
         // Création des holes
-        Hole hole1 = new Hole(1, 15.5, 2.3);
-        Hole hole2 = new Hole(2, 22.0, 1.5);
-        Hole hole3 = new Hole(1, 8.5, 3.2);
+        Hole hole1 = new Hole(1, 15.5, 2.3, 2.8);
+        Hole hole2 = new Hole(2, 22.0, 1.5, 2.0);
+        Hole hole3 = new Hole(1, 8.5, 3.2, 3.5);
         List<Hole> holes = new ArrayList<>();
         holes.add(hole1);
         holes.add(hole2);
         holes.add(hole3);
 
         // Création des routes (nécessite les points et paths)
-        Route route1 = new Route(Arrays.asList(point1, point2), 25.5, 30.0, point1, point2, Arrays.asList(path1));
-        Route route2 = new Route(Arrays.asList(point2, point3), 18.3, 22.5, point2, point3, Arrays.asList(path2));
-        Route route3 = new Route(Arrays.asList(point1, point4, point3), 32.1, 40.0, point1, point3, Arrays.asList(path1, path3));
+        Route route1 = new Route(25.5, 30.0, point1, point2, Arrays.asList(path1));
+        Route route2 = new Route(18.3, 22.5, point2, point3, Arrays.asList(path2));
+        Route route3 = new Route(32.1, 40.0, point1, point3, Arrays.asList(path1, path3));
         List<Route> routes = new ArrayList<>();
         routes.add(route1);
         routes.add(route2);

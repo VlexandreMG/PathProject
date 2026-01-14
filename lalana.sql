@@ -35,6 +35,7 @@ CREATE TABLE Hole (
     id_path NUMBER NOT NULL,
     percent NUMBER NOT NULL,
     km_age NUMBER NOT NULL,
+    finkm_age NUMBER NOT NULL,
     CONSTRAINT fk_hole_path FOREIGN KEY (id_path) REFERENCES Path(id) ON DELETE CASCADE
 );
 
@@ -86,11 +87,11 @@ INSERT INTO Path (id, nom, distance, largeur, point_dep_id, point_arr_id) VALUES
 INSERT INTO Path (id, nom, distance, largeur, point_dep_id, point_arr_id) VALUES (5, 'Path BE', 18.6, 2.2, 2, 5);
 
 -- Insertion des Holes
-INSERT INTO Hole (id, id_path, percent, km_age) VALUES (1, 1, 15.5, 2.3);
-INSERT INTO Hole (id, id_path, percent, km_age) VALUES (2, 2, 22.0, 1.5);
-INSERT INTO Hole (id, id_path, percent, km_age) VALUES (3, 1, 8.5, 3.2);
-INSERT INTO Hole (id, id_path, percent, km_age) VALUES (4, 3, 30.0, 4.5);
-INSERT INTO Hole (id, id_path, percent, km_age) VALUES (5, 4, 12.0, 1.8);
+INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (1, 1, 15.5, 2.3, 2.8);
+INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (2, 2, 22.0, 1.5, 2.0);
+INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (3, 1, 8.5, 3.2, 3.5);
+INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (4, 3, 30.0, 4.5, 5.0);
+INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (5, 4, 12.0, 1.8, 2.2);
 
 -- Insertion des Routes
 INSERT INTO Route (id, distance, duration, start_point_id, end_point_id) VALUES (1, 25.5, 30.0, 1, 2);

@@ -8,23 +8,13 @@ public class Route {
     Point startPoint;
     Point endPoint;
     List<Path> listPath;
-    List<Point> listPoint;
 
-    public Route(List<Point> listPoint,double distance, double duration, Point startPoint, Point endPoint, List<Path> listPath) {
+    public Route(double distance, double duration, Point startPoint, Point endPoint, List<Path> listPath) {
         this.distance = distance;
         this.duration = duration;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.listPath = listPath;
-        this.listPoint = listPoint;
-    }
-
-    public List<Point> getListPoint() {
-        return listPoint;
-    }
-
-    public void setListPoint(List<Point> listPoint) {
-        this.listPoint = listPoint;
     }
 
     public double getDistance() {

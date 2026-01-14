@@ -8,6 +8,7 @@ public class Hole {
     int idPath;
     double percent;
     double kmAge;
+    double finkmAge;
 
     public int getIdPath() {
         return idPath;
@@ -29,6 +30,10 @@ public class Hole {
         return kmAge;
     }
 
+    public double getFinkmAge() {
+        return finkmAge;
+    }
+
     public void setIdPath(int idPath) {
         this.idPath = idPath;
     }
@@ -41,10 +46,15 @@ public class Hole {
         this.kmAge = kmAge;
     }
 
-    public Hole(int idPath, double percent, double kmAge) {
+    public void setFinkmAge(double finkmAge) {
+        this.finkmAge = finkmAge;
+    }
+
+    public Hole(int idPath, double percent, double kmAge, double finkmAge) {
         setIdPath(idPath);
         setPercent(percent);
         setKmAge(kmAge);
+        setFinkmAge(finkmAge);
     }
 
     // ===== CRUD Methods =====
@@ -54,24 +64,42 @@ public class Hole {
      * @return l'ID généré ou -1 en cas d'erreur
      */
     public int insert() throws SQLException {
-        String sql = "INSERT INTO Hole (id_path, percent, km_age) VALUES (?, ?, ?)";
+        String sql;
+        if (this.id > 0) {
+            // Si l'ID est déjà défini, l'utiliser
+            sql = "INSERT INTO Hole (id, id_path, percent, km_age, finkm_age) VALUES (?, ?, ?, ?, ?)";
+        } else {
+            // Sinon, laisser la base générer l'ID
+            sql = "INSERT INTO Hole (id_path, percent, km_age, finkm_age) VALUES (?, ?, ?, ?)";
+        }
         
         try (Connection conn = ConnectionOr.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"id"})) {
             
-            pstmt.setInt(1, this.idPath);
-            pstmt.setDouble(2, this.percent);
-            pstmt.setDouble(3, this.kmAge);
+            if (this.id > 0) {
+                pstmt.setInt(1, this.id);
+                pstmt.setInt(2, this.idPath);
+                pstmt.setDouble(3, this.percent);
+                pstmt.setDouble(4, this.kmAge);
+                pstmt.setDouble(5, this.finkmAge);
+            } else {
+                pstmt.setInt(1, this.idPath);
+                pstmt.setDouble(2, this.percent);
+                pstmt.setDouble(3, this.kmAge);
+                pstmt.setDouble(4, this.finkmAge);
+            }
             
             int rowsAffected = pstmt.executeUpdate();
             
             if (rowsAffected > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    this.id = rs.getInt(1);
-                    System.out.println("Hole inséré avec l'ID: " + this.id);
-                    return this.id;
+                if (this.id <= 0) {
+                    ResultSet rs = pstmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        this.id = rs.getInt(1);
+                    }
                 }
+                System.out.println("Hole inséré avec l'ID: " + this.id);
+                return this.id;
             }
             return -1;
         }
@@ -95,7 +123,8 @@ public class Hole {
                 Hole hole = new Hole(
                     rs.getInt("id_path"),
                     rs.getDouble("percent"),
-                    rs.getDouble("km_age")
+                    rs.getDouble("km_age"),
+                    rs.getDouble("finkm_age")
                 );
                 hole.setId(rs.getInt("id"));
                 System.out.println("Hole trouvé (Path ID: " + hole.getIdPath() + ")");
@@ -112,7 +141,7 @@ public class Hole {
      * @return true si succès, false sinon
      */
     public boolean update() throws SQLException {
-        String sql = "UPDATE Hole SET id_path = ?, percent = ?, km_age = ? WHERE id = ?";
+        String sql = "UPDATE Hole SET id_path = ?, percent = ?, km_age = ?, finkm_age = ? WHERE id = ?";
         
         try (Connection conn = ConnectionOr.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -120,7 +149,8 @@ public class Hole {
             pstmt.setInt(1, this.idPath);
             pstmt.setDouble(2, this.percent);
             pstmt.setDouble(3, this.kmAge);
-            pstmt.setInt(4, this.id);
+            pstmt.setDouble(4, this.finkmAge);
+            pstmt.setInt(5, this.id);
             
             int rowsAffected = pstmt.executeUpdate();
             
